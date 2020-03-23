@@ -8,7 +8,7 @@
   - Basically pwntools in C
   - But is uses foramt string (i.e. functions like printf()/scanf()) to handle I/O
 
-- Usage
+- Usage (You should only call functions in PwnType.h)
   - ptRemote:
     - Pass the domain name and port number to run remote process
   - ptLocal:
