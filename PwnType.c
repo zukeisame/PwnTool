@@ -73,12 +73,14 @@ uint64_t ptSendf(const PT *const pt, const char *const formatString, ...) {
 	return sendBytes;
 }
 
-void ptRecvf(const PT *const pt, const char *const formatString, ...) {
+uint64_t ptRecvf(const PT *const pt, const char *const formatString, ...) {
 	va_list parameters;
 
 	va_start(parameters, formatString);
-	pwnRecvFormat(pt->pio, formatString, parameters);
+	const uint64_t recvdBytes = pwnRecvFormat(pt->pio, formatString, parameters);
 	va_end(parameters);
+
+	return recvdBytes;
 }
 
 void ptFlush(const PT *const pt) {

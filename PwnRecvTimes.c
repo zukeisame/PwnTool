@@ -1,4 +1,5 @@
 #include "PwnRecvTimes.h"
+#include "PwnFcntl.h"
 #include "PwnError.h"
 #include "PwnMisc.h"
 #include "PwnDef.h"
@@ -9,7 +10,7 @@
 /*
  * PUBLIC =========================================================================================
  */
- void pwnDiscardTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
+ uint64_t pwnDiscardTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
 	const int recvFD = pioGetRecvFD(pio);
 
 	Byte byte;
@@ -18,9 +19,11 @@
 			pwnStandardError("pwnDiscardTimes()");
 		}
 	}
+
+	return times;
 }
 
-void pwnPrintTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
+uint64_t pwnPrintTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
 	const int recvFD = pioGetRecvFD(pio);
 
 	Byte byte;
@@ -30,9 +33,11 @@ void pwnPrintTimes(const PIO *const pio, va_list parameters, const uint64_t time
 		}
 		pwnPrintByte(i, byte);
 	}
+
+	return times;
 }
 
-void pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64_t times) {
+uint64_t pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64_t times) {
 	if (times > sizeof(FourBytes)) {
 		pwnStandardError("pwnRecvFourBytes(): invalid format string");
 	}
@@ -43,9 +48,11 @@ void pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64_t t
 			pwnStandardError("pwnRecvFourBytes()");
 		}
 	}
+
+	return times;
 }
 
-void pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint64_t times) {
+uint64_t pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint64_t times) {
 	if (times > sizeof(EightBytes)) {
 		pwnStandardError("pwnRecvEightBytes(): invalid format string");
 	}
@@ -56,4 +63,36 @@ void pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint64_t 
 			pwnStandardError("pwnRecvEightBytes()");
 		}
 	}
+
+	return times;
+}
+
+uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
+	char *const ptr = va_arg(parameters, char*);
+
+	pwnNonBlockFD(pioGetRecvFD(pio));
+	uint64_t i;
+	for (i = 0; i < times; ++i) {
+		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
+			break;
+		}
+	}
+	pwnBlockFD(pioGetRecvFD(pio));
+
+	return i;
+}
+
+uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
+	char *const ptr = va_arg(parameters, char*);
+
+	uint64_t i;
+	for (i = 0; i < times; ++i) {
+		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
+			pwnStandardError("pwnRecvLineTimes()");
+		} else if (*(ptr + i) == '\n') {
+			break;
+		}
+	}
+
+	return i;
 }

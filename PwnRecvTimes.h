@@ -7,13 +7,17 @@
 /*
  * recv functions
  */
-void pwnDiscardTimes(const PIO *const pio, va_list parameters, const uint64_t times);
+uint64_t pwnDiscardTimes(const PIO *const pio, va_list parameters, const uint64_t times);
 
-void pwnPrintTimes(const PIO *const pio, va_list parameters, const uint64_t times);
+uint64_t pwnPrintTimes(const PIO *const pio, va_list parameters, const uint64_t times);
 
-void pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64_t times);
+uint64_t pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64_t times);
 
-void pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint64_t times);
+uint64_t pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint64_t times);
+
+uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64_t times);
+
+uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64_t times);
 
 
 #endif

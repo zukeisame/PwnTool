@@ -6,6 +6,7 @@
 #include "PwnVB.h"
 #include <string.h>
 #include <stdarg.h>
+#include <poll.h>
 /*
  * PRIVATE ========================================================================================
  */
@@ -25,22 +26,15 @@ int pwnShellHasExitPattern(const VB *const vb) {
 
 void pwnShellRecvAllVB(const PIO *const pio, VB *const vb) {
 	Byte byte;
-	while (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte)) {
+
+	if (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte)) { // first byte
 		vbPush(vb, Byte, byte);
-	}
-}
-
-void pwnShellRecvLineVB(const PIO *const pio, VB *const vb) {
-	Byte byte;
-
-	if (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte)) { // recv first byte
-		while (byte != '\n') { // if is not end of line
+		// read remainders
+		pwnNonBlockFD(pioGetRecvFD(pio));
+		while (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte)) {
 			vbPush(vb, Byte, byte);
-
-			if (pioRecv(pio, &byte, sizeof(byte)) != sizeof(byte)) {
-				break;
-			}
-		}	
+		}
+		pwnBlockFD(pioGetRecvFD(pio));
 	}
 }
 
@@ -48,62 +42,60 @@ void pwnShellSendVB(const PIO *const pio, const VB *const vb) {
 	pioSend(pio, vbGetArray(vb, Byte), vbGetBufferSize(vb));
 	pioFlush(pio);
 }
-
-void pwnShellSendString(const PIO *const pio, const char *const string) {
-	const uint64_t length = strlen(string);
-
-	pioSend(pio, string, length);
-	pioFlush(pio);
-}
 /*
  * PUBLIC =========================================================================================
  */
-#define POLLING_LIMIT 3
+#define PROMOPT "cheng$ "
 #define TEXT_RED "\x1b[31m"
 #define TEXT_WHITE "\x1b[37m"
+#define STDERR_TO_STDOUT "exec 2>&1\n"
 void pwnShell(const PIO *const pio) {
+	int pollRet;
+	struct pollfd poller;
 	uint64_t pollingCount;
 	VB *const vb = vbNew(Byte, 0);
 	PIO *const terminalPIO = pioOpenTerminal();
 
-	pwnNonBlockFD(pioGetRecvFD(pio));
+	pioSend(pio, STDERR_TO_STDOUT, strlen(STDERR_TO_STDOUT));
+	pioFlush(pio);
+
 	pwnShellRecvAllVB(pio, vb); // discard existing data
 	vbClear(vb);
 
-	const char *const STDERR_TO_STDOUT = "exec 2>&1\n";
-	pwnShellSendString(pio, STDERR_TO_STDOUT);
-
 	for (;;) {
-		pwnShellSendString(terminalPIO, TEXT_RED);
-		pwnShellSendString(terminalPIO, "cheng$ ");
-		pwnShellSendString(terminalPIO, TEXT_WHITE);
+		pioSend(terminalPIO, TEXT_RED, strlen(TEXT_RED));
+		pioSend(terminalPIO, PROMOPT, strlen(PROMOPT));
+		pioSend(terminalPIO, TEXT_WHITE, strlen(TEXT_WHITE));
+		pioFlush(pio);
 
-		pwnShellRecvLineVB(terminalPIO, vb);
-		if (vbGetBufferSize(vb) > 0) {
-			vbPush(vb, Byte, '\n');
+		pwnShellRecvAllVB(terminalPIO, vb);
+		if (vbGet(vb, Byte, 0) != '\n') {
 			pwnShellSendVB(pio, vb);
-			if (pwnShellHasExitPattern(vb)) {
+		}
+		vbClear(vb);
+
+		poller.fd = pioGetRecvFD(pio);
+		poller.events = POLLIN;
+		poller.revents = 0;
+
+		pollRet = poll(&poller, 1, 300);
+		if (pollRet < 0) {
+			pwnStandardError("poll()");
+		} else if (pollRet == 1) {
+			if (poller.revents & POLLIN) {
+				pwnShellRecvAllVB(pio, vb);
+				pwnShellSendVB(terminalPIO, vb);
+				vbClear(vb);
+			} else {
 				break;
 			}
-			vbClear(vb);
-		}
-
-		pollingCount = 0;
-		do {
-			pwnSleep(100);
-			++pollingCount;
-			pwnShellRecvAllVB(pio, vb);
-		} while (pollingCount < POLLING_LIMIT && vbGetBufferSize(vb) == 0);
-
-		if (vbGetBufferSize(vb) > 0) {
-			pwnShellSendVB(terminalPIO, vb);
-			vbClear(vb);
 		}
 	}
 
 	pioClose(terminalPIO);
 	vbFree(vb);
 }
-#undef POLLING_LIMIT
+#undef STDERR_TO_STDOUT
 #undef TEXT_WHITE
 #undef TEXT_RED
+#undef PROMOPT

@@ -30,7 +30,7 @@ PwnPause.o: PwnPause.h PwnPause.c
 PwnRecv.o: PwnRecv.h PwnRecv.c PwnIO.h PwnMisc.h PwnError.h PwnFcntl.h
 	gcc -c PwnRecv.c
 
-PwnRecvTimes.o: PwnRecvTimes.h PwnRecvTimes.c PwnIO.h PwnDef.h PwnMisc.h PwnError.h
+PwnRecvTimes.o: PwnRecvTimes.h PwnRecvTimes.c PwnIO.h PwnDef.h PwnMisc.h PwnError.h PwnFcntl.h
 	gcc -c PwnRecvTimes.c
 
 PwnRecvFormat.o: PwnRecvFormat.h PwnRecvFormat.c PwnIO.h PwnMisc.h PwnRecv.h PwnError.h PwnRecvTimes.h

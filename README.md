@@ -15,7 +15,7 @@
     - Pass a path to execute local process
   - ptClose:
     - Close remote/local connection
-  - ptRecvf: (# is an unsigned number)
+  - ptRecvf: (# is an unsigned number, ptSendf will return number of bytes it received)
     - %J will discard all the data it received so far (pass nothing)
     - %S will received until this string pattern happened (pass a string)
     - %P will print all bytes received on the screen (pass nothing)
@@ -23,6 +23,8 @@
     - %#P will print # bytes (pass nothing)
     - %#a will received #(<= 4) bytes and put it into a 32-bit address parameter (pass a pointer to a variable of FourBytes)
     - %#A will received #(<= 8) bytes and put it into a 64-bit address parameter (pass a pointer to a variable of EightBytes)
+    - %#L will received at most # bytes or until it reaches the end of line (pass a buffer)
+    - %#C will received at most # bytes (pass a buffer)
   - ptSendf: (# is an unsigned number, ptSendf will return number of bytes it sent)
     - %C will send single byte (pass a character)
     - %S will send a string (pass a string)

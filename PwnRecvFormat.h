@@ -6,7 +6,7 @@
 /*
  * ptRecvf workhorse
  */
-void pwnRecvFormat(const PIO *const pio, const char *const formatString, va_list parameters);
+uint64_t pwnRecvFormat(const PIO *const pio, const char *const formatString, va_list parameters);
 
 
 #endif
