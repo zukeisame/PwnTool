@@ -45,7 +45,7 @@ PwnSendTimes.o: PwnSendTimes.h PwnSendTimes.c PwnIO.h PwnDef.h
 PwnSendFormat.o: PwnSendFormat.h PwnSendFormat.c PwnIO.h PwnMisc.h PwnSend.h PwnError.h PwnSendTimes.h
 	gcc -c PwnSendFormat.c
 
-PwnShell.o: PwnShell.h PwnShell.c PwnIO.h PwnVB.h PwnDef.h PwnSleep.h PwnError.h PwnFcntl.h
+PwnShell.o: PwnShell.h PwnShell.c PwnIO.h PwnVB.h PwnDef.h PwnError.h PwnFcntl.h
 	gcc -c PwnShell.c
 
 PwnSleep.o: PwnSleep.h PwnSleep.c PwnError.h
