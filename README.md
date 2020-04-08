@@ -53,7 +53,7 @@
   - PwnTool uses VB to handle data buffering
     ```C
     // change include path
-    #include "/path/to/VB.h
+    #include "/path/to/VB.h"
     ```
   - Run "setup.sh" to compile all object files and place libPwn.so to /usr/lib
     ```sh
