@@ -14,11 +14,11 @@ PT* ptRemote(const char *const domainName, const uint16_t port);
 
 void ptClose(PT *const pt);
 
+void ptPause(const PT *const pt);
+
 uint64_t ptSendf(const PT *const pt, const char *const format, ...);
 
 uint64_t ptRecvf(const PT *const pt, const char *const format, ...);
-
-void ptFlush(const PT *const pt);
 
 void ptShell(const PT *const pt);
 

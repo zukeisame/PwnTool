@@ -1,52 +1,52 @@
-all: $(wildcard *.o)
+# target shared library
+ObjectFiles := $(patsubst %.c, %.o, $(wildcard *.c))
+libPwn.so: $(ObjectFiles)
+	gcc $(ObjectFiles) -shared -o libPwn.so
+
+# compile every object files
+ObjectFlags := -c -fPIC
 
 PwnType.o: PwnType.h PwnType.c PwnIO.h PwnShell.h PwnError.h PwnSendFormat.h PwnRecvFormat.h
-	gcc -c PwnType.c
+	gcc PwnType.c $(ObjectFlags)
 
 PwnError.o: PwnError.h PwnError.c
-	gcc -c PwnError.c
+	gcc PwnError.c $(ObjectFlags)
 
 PwnFcntl.o: PwnFcntl.h PwnFcntl.c PwnError.h
-	gcc -c PwnFcntl.c
+	gcc PwnFcntl.c $(ObjectFlags)
 
 PwnIO.o: PwnIO.h PwnIO.c PwnVB.h PwnDef.h PwnError.h PwnIOLocal.h PwnIORemote.h PwnIOTerminal.h
-	gcc -c PwnIO.c
+	gcc PwnIO.c $(ObjectFlags)
 
 PwnIOLocal.o: PwnIOLocal.h PwnIOLocal.c PwnError.h
-	gcc -c PwnIOLocal.c
+	gcc PwnIOLocal.c $(ObjectFlags)
 
 PwnIORemote.o: PwnIORemote.h PwnIORemote.c PwnError.h
-	gcc -c PwnIORemote.c
+	gcc PwnIORemote.c $(ObjectFlags)
 
 PwnIOTerminal.o: PwnIOTerminal.h PwnIOTerminal.c PwnError.h
-	gcc -c PwnIOTerminal.c
+	gcc PwnIOTerminal.c $(ObjectFlags)
 
-PwnMisc.o: PwnMisc.h PwnMisc.c PwnDef.h
-	gcc -c PwnMisc.c
-
-PwnPause.o: PwnPause.h PwnPause.c
-	gcc -c PwnPause.c
+PwnMisc.o: PwnMisc.h PwnMisc.c PwnDef.h PwnError.h
+	gcc PwnMisc.c $(ObjectFlags)
 
 PwnRecv.o: PwnRecv.h PwnRecv.c PwnIO.h PwnMisc.h PwnError.h PwnFcntl.h
-	gcc -c PwnRecv.c
+	gcc PwnRecv.c $(ObjectFlags)
 
 PwnRecvTimes.o: PwnRecvTimes.h PwnRecvTimes.c PwnIO.h PwnDef.h PwnMisc.h PwnError.h PwnFcntl.h
-	gcc -c PwnRecvTimes.c
+	gcc PwnRecvTimes.c $(ObjectFlags)
 
 PwnRecvFormat.o: PwnRecvFormat.h PwnRecvFormat.c PwnIO.h PwnMisc.h PwnRecv.h PwnError.h PwnRecvTimes.h
-	gcc -c PwnRecvFormat.c
+	gcc PwnRecvFormat.c $(ObjectFlags)
 
 PwnSend.o: PwnSend.h PwnSend.c PwnIO.h PwnDef.h PwnError.h
-	gcc -c PwnSend.c
+	gcc PwnSend.c $(ObjectFlags)
 
 PwnSendTimes.o: PwnSendTimes.h PwnSendTimes.c PwnIO.h PwnDef.h
-	gcc -c PwnSendTimes.c
+	gcc PwnSendTimes.c $(ObjectFlags)
 
 PwnSendFormat.o: PwnSendFormat.h PwnSendFormat.c PwnIO.h PwnMisc.h PwnSend.h PwnError.h PwnSendTimes.h
-	gcc -c PwnSendFormat.c
+	gcc PwnSendFormat.c $(ObjectFlags)
 
 PwnShell.o: PwnShell.h PwnShell.c PwnIO.h PwnVB.h PwnDef.h PwnError.h PwnFcntl.h
-	gcc -c PwnShell.c
-
-PwnSleep.o: PwnSleep.h PwnSleep.c PwnError.h
-	gcc -c PwnSleep.c
+	gcc PwnShell.c $(ObjectFlags)

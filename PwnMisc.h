@@ -6,6 +6,8 @@
 /*
  * some commons
  */
+void pwnSleep(const unsigned long microseonds);
+
 void pwnPrintByte(const uint64_t index, const Byte byte);
 
 const char* pwnGetStringAfter(const char *const current, const char c);

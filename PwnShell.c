@@ -1,27 +1,31 @@
 #include "PwnShell.h"
 #include "PwnFcntl.h"
 #include "PwnError.h"
-#include "PwnSleep.h"
 #include "PwnDef.h"
 #include "PwnVB.h"
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <poll.h>
 /*
  * PRIVATE ========================================================================================
  */
 int pwnShellHasExitPattern(const VB *const vb) {
 	const char *const line = vbGetArray(vb, Byte);
+	
+	for (long i = 0; i < vbGetBufferSize(vb); ++i) {
+		if (isspace(line[i])) {
+			continue;
+		}
 
-	if (strncmp(line, "exit", 4) == 0) {
-		return 1;
-	} else if (strstr(line, " exit") != NULL) {
-		return 1;
-	} else if (strstr(line, "exit ") != NULL) {
-		return 1;
-	} else {
-		return 0;
+		if (isspace(*(line + i + 4)) && (strncmp(line + i, "exit", 4) == 0)) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
+
+	return 0;
 }
 
 void pwnShellRecvAllVB(const PIO *const pio, VB *const vb) {
@@ -71,6 +75,9 @@ void pwnShell(const PIO *const pio) {
 		pwnShellRecvAllVB(terminalPIO, vb);
 		if (vbGet(vb, Byte, 0) != '\n') {
 			pwnShellSendVB(pio, vb);
+			if (pwnShellHasExitPattern(vb)) {
+				break;
+			}
 		}
 		vbClear(vb);
 

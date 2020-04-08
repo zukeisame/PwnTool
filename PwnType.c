@@ -63,6 +63,12 @@ void ptClose(PT *const pt) {
 	free(pt);
 }
 
+void ptPause(const PT *const pt) {
+	printf("[#] pausing! press enter to continue ...");
+	getchar();
+	printf("[#] continuing ...\n");
+}
+
 uint64_t ptSendf(const PT *const pt, const char *const formatString, ...) {
 	va_list parameters;
 
@@ -70,6 +76,7 @@ uint64_t ptSendf(const PT *const pt, const char *const formatString, ...) {
 	const uint64_t sendBytes = pwnSendFormat(pt->pio, formatString, parameters);
 	va_end(parameters);
 
+	pioFlush(pt->pio); // send this payload
 	return sendBytes;
 }
 
@@ -81,10 +88,6 @@ uint64_t ptRecvf(const PT *const pt, const char *const formatString, ...) {
 	va_end(parameters);
 
 	return recvdBytes;
-}
-
-void ptFlush(const PT *const pt) {
-	pioFlush(pt->pio);
 }
 
 void ptShell(const PT *const pt) {
