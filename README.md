@@ -46,6 +46,22 @@
 
 - Compilation
   - Clone the repository
-  - Important! Go to PwnVB.h and change line [#include "headers/VB.h"] to the right include path (VB is another my repository) so that it can use VB to handle buffering
-  - Run "make" to compile all object files
-  - Compile your progaram with all object files
+    ```sh
+      git clone https://github.com/zukeisame/PwnTool.git
+    ```
+  - Important! Go to PwnVB.h and include the right path of VB.h (VB is another my repository) 
+  - PwnTool uses VB to handle data buffering
+    ```C
+      // change include path
+      #include "/path/to/VB.h
+    ```
+  - Run "setup.sh" to compile all object files and place libPwn.so to /usr/lib
+    ```sh
+      cd PwnTool
+      ./setup.sh
+    ```
+  - Include path to Pwn.h in your code
+  - Compile your progaram with -lPwn -lVB options (cannot reverse the order)
+    ```sh
+      gcc example.c -o example -lPwn -lVB
+    ```
