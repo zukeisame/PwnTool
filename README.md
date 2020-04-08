@@ -47,21 +47,21 @@
 - Compilation
   - Clone the repository
     ```sh
-      git clone https://github.com/zukeisame/PwnTool.git
+    git clone https://github.com/zukeisame/PwnTool.git
     ```
   - Important! Go to PwnVB.h and include the right path of VB.h (VB is another my repository) 
   - PwnTool uses VB to handle data buffering
     ```C
-      // change include path
-      #include "/path/to/VB.h
+    // change include path
+    #include "/path/to/VB.h
     ```
   - Run "setup.sh" to compile all object files and place libPwn.so to /usr/lib
     ```sh
-      cd PwnTool
-      ./setup.sh
+    cd PwnTool
+    ./setup.sh
     ```
   - Include path to Pwn.h in your code
   - Compile your progaram with -lPwn -lVB options (cannot reverse the order)
     ```sh
-      gcc example.c -o example -lPwn -lVB
+    gcc example.c -o example -lPwn -lVB
     ```
