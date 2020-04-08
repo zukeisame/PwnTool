@@ -65,7 +65,7 @@ void ptClose(PT *const pt) {
 
 void ptPause(const PT *const pt) {
 	printf("[#] pausing! press enter to continue ...");
-	getchar();
+	while (getchar() != '\n');
 	printf("[#] continuing ...\n");
 }
 
