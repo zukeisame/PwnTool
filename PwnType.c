@@ -66,7 +66,7 @@ void ptClose(PT *const pt) {
 void ptPause(const PT *const pt) {
 	printf("[#] pausing! press enter to continue ...");
 	while (getchar() != '\n');
-	printf("[#] continuing ...\n");
+	// printf("[#] continuing ...\n");
 }
 
 uint64_t ptSendf(const PT *const pt, const char *const formatString, ...) {
