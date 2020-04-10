@@ -72,14 +72,14 @@ uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64
 
 	pwnNonBlockFD(pioGetRecvFD(pio));
 	uint64_t i;
-	for (i = 0; i < times; ++i) {
+	for (i = 0; i < times - 1; ++i) {
 		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
 			break;
 		}
 	}
 	pwnBlockFD(pioGetRecvFD(pio));
 
-	*(ptr + i + 1) = '\0'; // end buffer
+	*(ptr + i) = '\0'; // end buffer
 	return i;
 }
 
@@ -87,7 +87,7 @@ uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64
 	char *const ptr = va_arg(parameters, char*);
 
 	uint64_t i;
-	for (i = 0; i < times; ++i) {
+	for (i = 0; i < times - 1; ++i) {
 		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
 			pwnStandardError("pwnRecvLineTimes()");
 			// raise(SIGUSR1);
