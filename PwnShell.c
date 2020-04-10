@@ -54,6 +54,7 @@ void pwnShellSendVB(const PIO *const pio, const VB *const vb) {
 #define TEXT_WHITE "\x1b[37m"
 #define STDERR_TO_STDOUT "exec 2>&1\n"
 void pwnShell(const PIO *const pio) {
+	Byte byte;
 	int pollRet;
 	struct pollfd poller;
 	uint64_t pollingCount;
@@ -63,8 +64,9 @@ void pwnShell(const PIO *const pio) {
 	pioSend(pio, STDERR_TO_STDOUT, strlen(STDERR_TO_STDOUT));
 	pioFlush(pio);
 
-	pwnShellRecvAllVB(pio, vb); // discard existing data
-	vbClear(vb);
+	pwnNonBlockFD(pioGetRecvFD(pio)); // discard existing data
+	while (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte));
+	pwnBlockFD(pioGetRecvFD(pio));
 
 	for (;;) {
 		pioSend(terminalPIO, TEXT_RED, strlen(TEXT_RED));
