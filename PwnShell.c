@@ -46,6 +46,14 @@ void pwnShellSendVB(const PIO *const pio, const VB *const vb) {
 	pioSend(pio, vbGetArray(vb, Byte), vbGetBufferSize(vb));
 	pioFlush(pio);
 }
+
+int pwnShellPoll(const PIO *const pio, struct pollfd *const poller) {
+	poller->fd = pioGetRecvFD(pio);
+	poller->events = POLLIN;
+	poller->revents = 0;
+
+	return poll(poller, 1, 300);
+}
 /*
  * PUBLIC =========================================================================================
  */
@@ -83,11 +91,7 @@ void pwnShell(const PIO *const pio) {
 		}
 		vbClear(vb);
 
-		poller.fd = pioGetRecvFD(pio);
-		poller.events = POLLIN;
-		poller.revents = 0;
-
-		pollRet = poll(&poller, 1, 300);
+		pollRet = pwnShellPoll(pio, &poller);
 		if (pollRet < 0) {
 			pwnStandardError("poll()");
 		} else if (pollRet == 1) {
