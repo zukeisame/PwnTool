@@ -44,7 +44,7 @@ void* piolOpen(const char *const program) {
 
 		if (execl(program, program, NULL) < 0) pwnStandardError("execve()");
 	} else if (childPID > 0) {
-		printf("[#] forking new local process %d\n", childPID);
+		printf("[#] forking new process %d\n", childPID);
 
 		if (close(sendPipe[0]) < 0) pwnStandardError("close()");
 
