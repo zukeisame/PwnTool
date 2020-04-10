@@ -79,6 +79,7 @@ uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64
 	}
 	pwnBlockFD(pioGetRecvFD(pio));
 
+	*(ptr + i) = '\0'; // end buffer
 	return i;
 }
 
@@ -94,5 +95,6 @@ uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64
 		}
 	}
 
+	*(ptr + i) = '\0'; // end buffer
 	return i;
 }
