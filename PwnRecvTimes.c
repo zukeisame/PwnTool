@@ -6,7 +6,7 @@
 /*
  * PRIVATE ========================================================================================
  */
-
+// #include <signal.h>
 /*
  * PUBLIC =========================================================================================
  */
@@ -79,7 +79,7 @@ uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64
 	}
 	pwnBlockFD(pioGetRecvFD(pio));
 
-	*(ptr + i) = '\0'; // end buffer
+	*(ptr + i + 1) = '\0'; // end buffer
 	return i;
 }
 
@@ -90,6 +90,7 @@ uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64
 	for (i = 0; i < times; ++i) {
 		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
 			pwnStandardError("pwnRecvLineTimes()");
+			// raise(SIGUSR1);
 		} else if (*(ptr + i) == '\n') {
 			break;
 		}
