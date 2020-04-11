@@ -6,7 +6,7 @@
 /*
  * PRIVATE ========================================================================================
  */
-
+// #include <signal.h>
 /*
  * PUBLIC =========================================================================================
  */
@@ -90,6 +90,8 @@ uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64
 	for (i = 0; i < times - 1; ++i) {
 		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
 			pwnStandardError("pwnRecvLineTimes()");
+			/* raise(SIGUSR1);
+			break;*/
 		} else if (*(ptr + i) == '\n') {
 			break;
 		}
