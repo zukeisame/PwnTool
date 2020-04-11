@@ -3,6 +3,7 @@
 #include "PwnError.h"
 #include "PwnDef.h"
 #include "PwnVB.h"
+#include <signal.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -28,6 +29,28 @@ int pwnShellHasExitPattern(const VB *const vb) {
 	return 0;
 }
 
+int pwnShellPoll(const PIO *const pio, struct pollfd *const poller) {
+	poller->fd = pioGetRecvFD(pio);
+	poller->events = POLLIN;
+	poller->revents = 0;
+
+	return poll(poller, 1, 300);
+}
+
+void pwnShellDiscardAll(const PIO *const pio) {
+	Byte byte;
+	struct pollfd poller;
+	const int pollRet = pwnShellPoll(pio, &poller);
+
+	if (pollRet < 0) {
+		pwnStandardError("poll()");
+	} else if (pollRet == 1) {
+		pwnNonBlockFD(pioGetRecvFD(pio)); // discard existing data
+		while (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte));
+		pwnBlockFD(pioGetRecvFD(pio));
+	}
+}
+
 void pwnShellRecvAllVB(const PIO *const pio, VB *const vb) {
 	Byte byte;
 
@@ -46,14 +69,6 @@ void pwnShellSendVB(const PIO *const pio, const VB *const vb) {
 	pioSend(pio, vbGetArray(vb, Byte), vbGetBufferSize(vb));
 	pioFlush(pio);
 }
-
-int pwnShellPoll(const PIO *const pio, struct pollfd *const poller) {
-	poller->fd = pioGetRecvFD(pio);
-	poller->events = POLLIN;
-	poller->revents = 0;
-
-	return poll(poller, 1, 300);
-}
 /*
  * PUBLIC =========================================================================================
  */
@@ -62,7 +77,6 @@ int pwnShellPoll(const PIO *const pio, struct pollfd *const poller) {
 #define TEXT_WHITE "\x1b[37m"
 #define STDERR_TO_STDOUT "exec 2>&1\n"
 void pwnShell(const PIO *const pio) {
-	Byte byte;
 	int pollRet;
 	struct pollfd poller;
 	uint64_t pollingCount;
@@ -72,10 +86,7 @@ void pwnShell(const PIO *const pio) {
 	pioSend(pio, STDERR_TO_STDOUT, strlen(STDERR_TO_STDOUT));
 	pioFlush(pio);
 
-	pwnNonBlockFD(pioGetRecvFD(pio)); // discard existing data
-	while (pioRecv(pio, &byte, sizeof(byte)) == sizeof(byte));
-	pwnBlockFD(pioGetRecvFD(pio));
-
+	pwnShellDiscardAll(pio);
 	for (;;) {
 		pioSend(terminalPIO, TEXT_RED, strlen(TEXT_RED));
 		pioSend(terminalPIO, PROMOPT, strlen(PROMOPT));
@@ -100,6 +111,7 @@ void pwnShell(const PIO *const pio) {
 				pwnShellSendVB(terminalPIO, vb);
 				vbClear(vb);
 			} else {
+				raise(SIGPIPE);
 				break;
 			}
 		}
