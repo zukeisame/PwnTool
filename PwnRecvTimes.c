@@ -39,7 +39,7 @@ uint64_t pwnPrintTimes(const PIO *const pio, va_list parameters, const uint64_t 
 
 uint64_t pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64_t times) {
 	if (times > sizeof(FourBytes)) {
-		pwnStandardError("pwnRecvFourBytes(): invalid format string");
+		pwnCustomError("pwnRecvFourBytes(): invalid format string");
 	}
 
 	Byte *ptr = (Byte*) va_arg(parameters, FourBytes*);
@@ -54,7 +54,7 @@ uint64_t pwnRecvFourBytes(const PIO *const pio, va_list parameters, const uint64
 
 uint64_t pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint64_t times) {
 	if (times > sizeof(EightBytes)) {
-		pwnStandardError("pwnRecvEightBytes(): invalid format string");
+		pwnCustomError("pwnRecvEightBytes(): invalid format string");
 	}
 
 	Byte *ptr = (Byte*) va_arg(parameters, EightBytes*);
@@ -68,11 +68,18 @@ uint64_t pwnRecvEightBytes(const PIO *const pio, va_list parameters, const uint6
 }
 
 uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
+	if (times == 0) {
+		return 0;
+	}
 	char *const ptr = va_arg(parameters, char*);
 
-	pwnNonBlockFD(pioGetRecvFD(pio));
-	uint64_t i;
-	for (i = 0; i < times - 1; ++i) {
+	if (pioRecv(pio, ptr, sizeof(char)) != sizeof(char)) { // recv first byte
+		pwnStandardError("pwnRecvByteTimes()");
+	}
+
+	pwnNonBlockFD(pioGetRecvFD(pio)); // recv remaining bytes
+	uint64_t i = 1;
+	for (; i < times - 1; ++i) {
 		if (pioRecv(pio, ptr + i, sizeof(char)) != sizeof(char)) {
 			break;
 		}
@@ -84,6 +91,9 @@ uint64_t pwnRecvByteTimes(const PIO *const pio, va_list parameters, const uint64
 }
 
 uint64_t pwnRecvLineTimes(const PIO *const pio, va_list parameters, const uint64_t times) {
+	if (times == 0) {
+		return 0;
+	}
 	char *const ptr = va_arg(parameters, char*);
 
 	uint64_t i;
